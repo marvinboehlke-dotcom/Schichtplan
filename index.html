@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Schichtplan">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<title>Schichtplan</title>
+<style>
+:root{--bg:#0d0d0f;--card:#17171b;--line:#26262c;--tx:#e8e8ec;--mu:#8a8a94;--FS:#e0a93b;--SS:#c06bd8;--NS:#4f8cff;--F:#3a3a42;--ac:#4ade80;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:12px 14px 130px}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;background:#0d0d0fee;border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+.nav div{display:flex;width:100%;max-width:520px}
+.nav div{gap:10px;padding:0 12px}
+.nav button{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--mu);font:inherit;font-size:19px;font-weight:600;padding:18px 10px}
+.nav button.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.hd{display:flex;align-items:center;gap:8px;margin:4px 0 12px}
+.hd input[type=month]{flex:1;background:none;border:0;color:var(--tx);font:600 20px inherit;font-family:inherit;min-width:0}
+button.b{background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:8px 13px;font:inherit;font-size:15px}
+.g{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.w{color:var(--mu);font-size:12px;text-align:center;padding-bottom:2px}
+.c{position:relative;aspect-ratio:1;border-radius:10px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:500;font-size:15px;cursor:pointer}
+.c small{font-size:11px;font-weight:700;margin-top:1px}
+.c.FS{background:#e0a93b24;color:var(--FS)}.c.SS{background:#c06bd824;color:var(--SS)}.c.NS{background:#4f8cff24;color:var(--NS)}
+.c.F{color:var(--mu)}
+.c.td{outline:2px solid var(--tx)}.c.sl{border-color:var(--tx)}
+.c u{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--ac)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;font-size:13px;color:var(--mu)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}
+.big{font-size:22px;font-weight:700}.mu{color:var(--mu);font-size:14px}
+.row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+.row label{flex:1;min-width:120px;font-size:13px;color:var(--mu);display:flex;flex-direction:column;gap:4px}
+input,select{background:#0d0d0f;border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:10px;font:inherit;width:100%;color-scheme:dark}
+.res{display:flex;gap:8px;margin-top:10px}
+.res div{flex:1;background:#0d0d0f;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.res b{display:block;font-size:24px}.res span{font-size:12px;color:var(--mu)}
+.res .hl b{color:var(--ac)}
+.sg{display:block;width:100%;text-align:left;background:#0d0d0f;border:1px solid var(--line);color:var(--tx);border-radius:12px;padding:12px;margin-top:8px;font:inherit}
+.sg b{color:var(--ac)}.sg span{display:block;font-size:13px;color:var(--mu);margin-top:2px}
+.ck{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mu);margin-top:6px}
+.ck input{width:20px;height:20px;padding:0}
+.hide{display:none}
+</style></head>
+<body>
+<section id="t1">
+ <div class="hd"><button class="b" id="pv">‹</button><input type="month" id="mo"><button class="b" id="nx">›</button><button class="b" id="td">Heute</button></div>
+ <div class="g" id="wd"></div><div class="g" id="cal" style="margin-top:5px"></div>
+ <div class="lg"><span><i style="background:var(--FS)"></i>Früh</span><span><i style="background:var(--SS)"></i>Spät</span><span><i style="background:var(--NS)"></i>Nacht</span><span><i style="background:var(--F)"></i>Frei</span><span><i style="background:var(--ac);border-radius:50%"></i>Feiertag</span></div>
+ <div class="card"><div class="big" id="d1"></div><div class="mu" id="d2"></div></div>
+</section>
+<section id="t2" class="hide">
+ <div class="card"><h3>Zeitraum prüfen</h3>
+  <div class="row"><label>Von<input type="date" id="f"></label><label>Bis<input type="date" id="e"></label></div>
+  <div class="res"><div class="hl"><b id="r1">–</b><span>Urlaubstage nötig</span></div><div><b id="r2">–</b><span>Tage am Stück frei</span></div><div><b id="r3">–</b><span>davon ohnehin frei</span></div></div>
+  <label class="ck"><input type="checkbox" id="hf">Feiertage zählen als frei (kein Urlaubstag nötig)</label>
+ </div>
+ <div class="card"><h3>Beste Urlaubszeiten</h3>
+  <div class="row"><label>Jahr<select id="yr"></select></label><label>Urlaubstage pro Block<input type="number" id="nd" min="1" max="30" value="7"></label></div>
+  <div id="sgs"></div>
+  <div class="mu" style="margin-top:10px">Tippe einen Vorschlag an, um ihn oben zu prüfen.</div>
+ </div>
+</section>
+<div class="nav"><div><button id="n1" class="on">Kalender</button><button id="n2">Urlaub</button></div></div>
+<script>
+const P=['SS','SS','SS','SS','F','FS','FS','FS','F','F','FS','FS','NS','NS','NS','F','F','F','SS','SS','SS','F','FS','NS','NS','NS','F','F'];
+const NM={SS:'Spätschicht',FS:'Frühschicht',NS:'Nachtschicht',F:'Frei'};
+const DAY=864e5,A=Date.UTC(2026,9,9);
+const shift=t=>P[((Math.round((t-A)/DAY)%28)+28)%28];
+const $=i=>document.getElementById(i);
+const pad=n=>String(n).padStart(2,'0');
+const hc={};
+function hol(y){if(hc[y])return hc[y];
+ const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=(h+l-7*m+114)%31+1;
+ const E=Date.UTC(y,mo-1,da),M=new Map();
+ [[Date.UTC(y,0,1),'Neujahr'],[E-2*DAY,'Karfreitag'],[E+DAY,'Ostermontag'],[Date.UTC(y,4,1),'Tag der Arbeit'],[E+39*DAY,'Christi Himmelfahrt'],[E+50*DAY,'Pfingstmontag'],[E+60*DAY,'Fronleichnam'],[Date.UTC(y,9,3),'Tag der Deutschen Einheit'],[Date.UTC(y,10,1),'Allerheiligen'],[Date.UTC(y,11,25),'1. Weihnachtstag'],[Date.UTC(y,11,26),'2. Weihnachtstag']].forEach(([t,n])=>M.set(t,n));
+ return hc[y]=M}
+const holOf=t=>hol(new Date(t).getUTCFullYear()).get(t);
+const off=t=>shift(t)==='F'||($('hf').checked&&!!holOf(t));
+const nw=new Date(),today=Date.UTC(nw.getFullYear(),nw.getMonth(),nw.getDate());
+let cy=nw.getFullYear(),cm=nw.getMonth(),sel=today;
+const fmt=(t,o)=>new Date(t).toLocaleDateString('de-DE',Object.assign({timeZone:'UTC'},o));
+const iso=t=>{const d=new Date(t);return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())};
+const unIso=s=>{const p=s.split('-').map(Number);return Date.UTC(p[0],p[1]-1,p[2])};
+
+$('wd').innerHTML=['Mo','Di','Mi','Do','Fr','Sa','So'].map(x=>'<div class="w">'+x+'</div>').join('');
+function cal(){
+ $('mo').value=cy+'-'+pad(cm+1);
+ const first=Date.UTC(cy,cm,1),dim=new Date(Date.UTC(cy,cm+1,0)).getUTCDate(),o=(new Date(first).getUTCDay()+6)%7;
+ let h='<i></i>'.repeat(o);
+ for(let d=1;d<=dim;d++){const t=Date.UTC(cy,cm,d),s=shift(t);
+  h+='<b class="c '+s+(t===today?' td':'')+(t===sel?' sl':'')+'" data-t="'+t+'">'+d+'<small>'+(s==='F'?'':s)+'</small>'+(holOf(t)?'<u></u>':'')+'</b>'}
+ $('cal').innerHTML=h;
+ const s=shift(sel),ho=holOf(sel);
+ $('d1').textContent=NM[s];
+ $('d2').textContent=fmt(sel,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(ho?' · '+ho:'');
+}
+$('cal').onclick=e=>{const c=e.target.closest('.c');if(c){sel=+c.dataset.t;cal()}};
+$('pv').onclick=()=>{cm--;if(cm<0){cm=11;cy--}cal()};
+$('nx').onclick=()=>{cm++;if(cm>11){cm=0;cy++}cal()};
+$('td').onclick=()=>{cy=nw.getFullYear();cm=nw.getMonth();sel=today;cal()};
+$('mo').onchange=e=>{if(e.target.value){const p=e.target.value.split('-');cy=+p[0];cm=+p[1]-1;cal()}};
+
+function calc(){
+ const f=$('f').value,e=$('e').value;
+ if(!f||!e||unIso(e)<unIso(f)){['r1','r2','r3'].forEach(i=>$(i).textContent='–');return}
+ let s=unIso(f),t=unIso(e),w=0,n=0;
+ for(let u=s;u<=t;u+=DAY){n++;if(!off(u))w++}
+ let a=s,b=t;while(off(a-DAY))a-=DAY;while(off(b+DAY))b+=DAY;
+ $('r1').textContent=w;$('r2').textContent=(b-a)/DAY+1;$('r3').textContent=n-w;
+}
+function sug(){
+ const y=+$('yr').value,n=Math.max(1,Math.min(30,+$('nd').value||1)),e1=Date.UTC(y,11,31)+60*DAY,L=[],seen={};
+ for(let t=Date.UTC(y,0,1);t<=Date.UTC(y,11,31);t+=DAY){
+  if(off(t))continue;
+  let c=0,u=t;
+  while(u<=e1){if(!off(u)){c++;if(c===n)break}u+=DAY}
+  if(c<n)continue;
+  let b=u,a=t;while(off(b+DAY))b+=DAY;while(off(a-DAY))a-=DAY;
+  const k=a+'_'+b;if(seen[k])continue;seen[k]=1;
+  L.push({a,b,len:(b-a)/DAY+1})}
+ L.sort((p,q)=>q.len-p.len||p.a-q.a);
+ const out=[];
+ for(const r of L){if(out.length>=6)break;if(out.every(o=>r.a>o.b+2||r.b<o.a-2))out.push(r)}
+ $('sgs').innerHTML=out.length?out.map(r=>'<button class="sg" data-a="'+r.a+'" data-b="'+r.b+'"><b>'+r.len+' Tage frei</b> mit '+n+' Urlaubstagen<span>'+fmt(r.a,{weekday:'short',day:'numeric',month:'short'})+' – '+fmt(r.b,{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span></button>').join(''):'<div class="mu">Keine Vorschläge gefunden.</div>';
+}
+$('sgs').onclick=e=>{const b=e.target.closest('.sg');if(!b)return;$('f').value=iso(+b.dataset.a);$('e').value=iso(+b.dataset.b);calc();scrollTo({top:0,behavior:'smooth'})};
+['f','e'].forEach(i=>$(i).onchange=calc);
+$('nd').oninput=sug;$('yr').onchange=sug;
+$('hf').onchange=()=>{calc();sug()};
+for(let y=nw.getFullYear();y<=nw.getFullYear()+4;y++)$('yr').innerHTML+='<option>'+y+'</option>';
+function tab(k){$('t1').classList.toggle('hide',k!==1);$('t2').classList.toggle('hide',k!==2);$('n1').classList.toggle('on',k===1);$('n2').classList.toggle('on',k===2);scrollTo(0,0)}
+$('n1').onclick=()=>tab(1);$('n2').onclick=()=>tab(2);
+cal();sug();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
